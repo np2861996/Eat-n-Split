@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./App.css";
 
 const items = [
@@ -34,12 +35,27 @@ const items = [
 ];
 
 function App() {
+  const [friends, setFriends] = useState(items);
+
+  const [showAddFriend, setShoWAddFriend] = useState(false);
+
+  function handleShowAddFriend() {
+    setShoWAddFriend((show) => !show);
+  }
+
+  function handleAddFriend(friend) {
+    setFriends((friends) => [...friends, friend]);
+  }
+
   return (
     <div className="App">
       <div class="AppInner">
-        <FriendsList />
-        <FormAddFriend />
-        <Button className="button">Add Friend</Button>
+        <FriendsList friends={friends} />
+        {showAddFriend && <FormAddFriend onAddFriend={handleAddFriend} />}
+        <Button className="button" onClick={handleShowAddFriend}>
+          {showAddFriend ? "Close" : "Add Friend"}
+        </Button>
+        <FormSplitBill />
       </div>
     </div>
   );
@@ -47,8 +63,8 @@ function App() {
 
 export default App;
 
-function FriendsList() {
-  const friends = items;
+function FriendsList({ friends }) {
+  // const friends = items;
 
   return (
     <ul>
@@ -88,18 +104,51 @@ function Friend({ friend }) {
   );
 }
 
-function Button({ children }) {
-  return <button className="button">{children}</button>;
+function Button({ children, onClick }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
 }
 
-function FormAddFriend() {
+function FormAddFriend({ onAddFriend }) {
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("https://picsum.photos/150?random=4");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!name || !image) return;
+
+    const newFriend = {
+      name,
+      image,
+      balance: 0,
+      id: crypto.randomUUID(),
+    };
+
+    onAddFriend(newFriend);
+
+    setName("");
+    setImage("https://picsum.photos/150?random=4");
+  }
+
   return (
-    <form className="form-add-friend">
+    <form className="form-add-friend" onSubmit={handleSubmit}>
       <label>Friend Name</label>
-      <input type="text" />
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
       <label>Image Url</label>
-      <input type="text" />
+      <input
+        type="text"
+        value={image}
+        onChange={(e) => setImage(e.target.value)}
+      />
 
       <Button>Add</Button>
     </form>
